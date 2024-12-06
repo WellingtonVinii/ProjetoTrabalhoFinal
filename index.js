@@ -7,12 +7,11 @@ const porta = 3000;
 const host = 'localhost';
 
 var listaUsuarios = [];
-var mensagens = {}; //teste bate papo
+var mensagens = []; //teste bate papo
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
-
 app.use(session({
     secret: 'MinH4Ch4v3S3cr3t4',
     resave: false,
@@ -25,7 +24,6 @@ app.use(session({
 }));
 
 app.use(cookieParser());
-
 app.use(express.static('./public'));
 
 function cadastrarUsuario(req, res) {
@@ -154,7 +152,7 @@ function menu(req,resp){
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Cadastro de Cliente</title>
+            <title>MENU</title>
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
         </head>
         <body>
@@ -193,7 +191,6 @@ function cadastrarUsuarioView(req,resp){
 
     const usuario = { nome, nick};
     listaUsuarios.push(usuario);
-
    
     resp.write(`   
         <!DOCTYPE html>
@@ -206,13 +203,13 @@ function cadastrarUsuarioView(req,resp){
         </head>
         <body>
         <table class="table">
-  <thead>
-    <tr>
-      <th scope="col">Nome</th>
-      <th scope="col">Nick</th>
-    </tr>
-  </thead>
-  <tbody>`);
+            <thead>
+                <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Nick</th>
+                </tr>
+            </thead>
+        <tbody>`);
 
   for (var i = 0; i < listaUsuarios.length; i++){
     resp.write(`<tr>
@@ -287,7 +284,7 @@ function verificarAutenticacao(req, resp, next){
 function batePapo(req, resp) {
     const dataHoraUltimoLogin = req.cookies['dataHoraUltimoLogin'] || '';
 
-    // Formulário de bate-papo
+    // Exibindo o formulário de bate-papo
     resp.send(`
         <!DOCTYPE html>
         <html lang="pt-br">
@@ -296,61 +293,92 @@ function batePapo(req, resp) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Bate-Papo</title>
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+            <style>
+                body {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    height: 100vh;
+                    margin: 0;
+                }
+                #mensagens {
+                    flex-grow: 1;
+                    overflow-y: auto;
+                    padding: 10px;
+                    background-color: #f9f9f9;
+                }
+                .mensagem {
+                    margin-bottom: 15px;
+                    border: 1px solid #ccc;
+                    border-radius: 10px;
+                    padding: 10px;
+                    background-color: #ffffff;
+                }
+                .mensagem small {
+                    display: block;
+                    margin-top: 5px;
+                    font-size: 0.9rem;
+                    color: #888;
+                }
+                #formulario {
+                    border-top: 2px solid #ccc;
+                    padding: 10px;
+                    background-color: #ffffff;
+                }
+            </style>
         </head>
         <body>
-            <h3>Bate-Papo</h3>
-            <form action="/enviarMensagem" method="POST">
-                <div class="mb-3">
-                    <label for="usuarioDestinatario" class="form-label">Escolha o Usuário para Conversar</label>
-                    <select class="form-select" id="usuarioDestinatario" name="usuarioDestinatario" required>
-                        <option value="" disabled selected>Selecione um usuário</option>
-                        ${listaUsuarios.map(usuario => `
-                            <option value="${usuario.nick}">${usuario.nick}</option>
-                        `).join('')}
-                    </select>
+            <div id="mensagens">
+                <h4>Mensagens</h4>
+                <div>
+                    ${mensagens.map(msg => `
+                        <div class="mensagem">
+                            <strong>${msg.remetente}</strong>: ${msg.mensagem}
+                            <small>postado em: ${msg.dataHora}</small>
+                        </div>
+                    `).join('')}
                 </div>
-                <div class="mb-3">
-                    <label for="mensagem" class="form-label">Mensagem</label>
-                    <textarea class="form-control" id="mensagem" name="mensagem" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar</button>
-            </form>
-
-            <h4>Mensagens</h4>
-            <div>
-                ${Object.keys(mensagens).map(par => {
-                    const [usuario1, usuario2] = par.split('_');
-                    return `
-                        <h5>${usuario1} & ${usuario2}</h5>
-                        <ul>
-                            ${mensagens[par].map(msg => `<li>${msg}</li>`).join('')}
-                        </ul>
-                    `;
-                }).join('')}
             </div>
 
-            <a href="/" class="btn btn-dark">Voltar ao Menu</a>
+            <div id="formulario">
+                <form action="/enviarMensagem" method="POST" class="d-flex align-items-center">
+                    <div class="me-2">
+                        <label for="remetente" class="form-label">Usuário:</label>
+                        <select class="form-select" id="remetente" name="remetente" required>
+                            <option value="">Selecione um usuário</option>
+                            ${listaUsuarios.map(user => `<option value="${user.nick}">${user.nick}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="me-2 flex-grow-1">
+                        <label for="mensagem" class="form-label">Mensagem:</label>
+                        <input type="text" class="form-control" id="mensagem" name="mensagem" required>
+                    </div>
+                    <button type="submit" class="btn btn-success align-self-end">Enviar</button>
+                </form>
+                <div id="menu-principal">
+                <a href="/" class="btn btn-dark mt-2">Voltar ao Menu Principal</a>
+                </div>
+            </div>
         </body>
         </html>
     `);
 }
 
 function enviarMensagem(req, resp) {
-    const { usuarioDestinatario, mensagem } = req.body;
-    const usuarioRemetente = req.session.usuario ? req.session.usuario.nick : 'desconhecido';
+    const { mensagem, remetente } = req.body;
+    const dataHora = new Date().toLocaleString();
 
-    if (!mensagens[`${usuarioRemetente}_${usuarioDestinatario}`]) {
-        mensagens[`${usuarioRemetente}_${usuarioDestinatario}`] = [];
+    if (!remetente || !mensagem) {
+        return resp.redirect('/batePapo');
     }
-    mensagens[`${usuarioRemetente}_${usuarioDestinatario}`].push(`${usuarioRemetente}: ${mensagem}`);
-
+    mensagens.push({ remetente, mensagem, dataHora });
     resp.redirect('/batePapo');
 }
+
 
 app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
-
 
 app.get('/logout', (req,resp)=>{
      req.session.destroy();
