@@ -90,51 +90,58 @@ function cadastrarUsuario(req, res) {
             </div>
             <script>
                 document.getElementById('formCadastro').addEventListener('submit', function(event) {
-                    let isValid = true;
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                let isValid = true;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                // Resetando mensagens de erro
+                document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+                document.querySelectorAll('.form-control, .form-select').forEach(el => el.classList.remove('is-invalid'));
+                // Validação do nome
+                if (!document.getElementById('nome').value.trim()) {
+                    document.getElementById('erroNome').textContent = 'Por favor, preencha o nome completo!';
+                    document.getElementById('nome').classList.add('is-invalid');
+                    isValid = false;
+                }
+                // Validação do nick
+                if (!document.getElementById('nick').value.trim()) {
+                    document.getElementById('erroNick').textContent = 'Por favor, preencha o apelido!';
+                    document.getElementById('nick').classList.add('is-invalid');
+                    isValid = false;
+                }
+                // Validação da data de nascimento
+                if (!document.getElementById('nascimento').value.trim()) {
+                    document.getElementById('erroNascimento').textContent = 'Por favor, preencha a data de nascimento!';
+                    document.getElementById('nascimento').classList.add('is-invalid');
+                    isValid = false;
+                }
+                // Validação do email
+                const emailField = document.getElementById('email');
+                if (!emailField.value.trim()) {
+                    document.getElementById('erroEmail').textContent = 'Por favor, preencha o email!';
+                    emailField.classList.add('is-invalid');
+                    isValid = false;
+                } else if (!emailRegex.test(emailField.value)) {
+                    document.getElementById('erroEmail').textContent = 'Por favor, insira um email válido!';
+                    emailField.classList.add('is-invalid');
+                    isValid = false;
+                }
+                // Validação da senha
+                const senhaField = document.getElementById('senha');
+                const senha2Field = document.getElementById('senha2');
+                if (!senhaField.value.trim()) {
+                    document.getElementById('erroSenha').textContent = 'Por favor, preencha a senha!';
+                    senhaField.classList.add('is-invalid');
+                    isValid = false;
+                } else if (senhaField.value !== senha2Field.value) {
+                    document.getElementById('erroSenha').textContent = 'As senhas não coincidem!';
+                    senhaField.classList.add('is-invalid');
+                    senha2Field.classList.add('is-invalid');
+                    isValid = false;
+                }
+                if (!isValid) {
+                    event.preventDefault();
+                }
+            });
 
-                    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-                    document.querySelectorAll('.form-control, .form-select').forEach(el => el.classList.remove('is-invalid'));
-
-                    if (!document.getElementById('nome').value.trim()) {
-                        document.getElementById('erroNome').textContent = 'Por favor, preencha o nome completo!';
-                        document.getElementById('nome').classList.add('is-invalid');
-                        isValid = false;
-                    }
-                    if (!document.getElementById('nick').value.trim()) {
-                        document.getElementById('erronick').textContent = 'Por favor, preencha o Apelido!';
-                        document.getElementById('nick').classList.add('is-invalid');
-                        isValid = false;
-                    }
-                    if (!document.getElementById('nascimento').value.trim()) {
-                        document.getElementById('erroNascimento').textContent = 'Por favor, preencha a data de nascimento!';
-                        document.getElementById('nascimento').classList.add('is-invalid');
-                        isValid = false;
-                    }
-                    if (!document.getElementById('email').value.trim()) {
-                        document.getElementById('erroEmail').textContent = 'Por favor, preencha o email!';
-                        document.getElementById('email').classList.add('is-invalid');
-                        isValid = false;
-                    }
-                    if (!emailRegex.test(document.getElementById('email').value)){
-                        document.getElementById('erroEmail').textContent = 'Por favor, preencha com um email!';
-                        document.getElementById('email').classList.add('is-invalid');
-                        isValid = false;
-                    }
-                    if (!document.getElementById('senha').value.trim()) {
-                        document.getElementById('erroSenha').textContent = 'Por favor, faça uma SENHA!';
-                        document.getElementById('senha').classList.add('is-invalid');
-                        isValid = false;
-                    }
-                    if (document.getElementById('senha').value !== document.getElementById('senha2').value) {
-                        document.getElementById('erroSenha').textContent = "As senhas não coincidem!";
-                        document.getElementById('senha').classList.add('is-invalid');
-                        isValid = false;
-                    }
-                    if (!isValid) {
-                        event.preventDefault();
-                    }
-                });
             </script>
         </body>
         </html>
